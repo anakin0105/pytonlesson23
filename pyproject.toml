@@ -2,6 +2,7 @@
 name = "pytonlesson23"
 version = "0.1.0"
 description = ""
+package-mode = false
 authors = [
     {name = "Анна Акиньшина",email = "anakin0105@gmail.com"}
 ]
