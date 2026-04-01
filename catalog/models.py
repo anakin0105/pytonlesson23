@@ -59,11 +59,11 @@ class Product(models.Model):
         decimal_places=2,
         verbose_name="Цена",
     )
-    created_at = models.DateField(
+    created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания",
     )
-    updated_at = models.DateField(
+    updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name="Дата последнего изменения",
     )
@@ -91,3 +91,25 @@ class Contact(models.Model):
     class Meta:
         verbose_name = "Контактное сообщение"
         verbose_name_plural = "Контактные сообщения"
+
+
+class CompanyContacts(models.Model):
+    country = models.CharField("Страна", max_length=100)
+    tax_id = models.CharField("ИНН / Tax ID", max_length=50)
+    address = models.CharField("Адрес", max_length=255)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата создания",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Дата последнего изменения",
+    )
+
+    class Meta:
+        verbose_name = "Реквизиты компании"
+        verbose_name_plural = "Реквизиты компании"
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"Реквизиты: {self.country}"
