@@ -1,0 +1,89 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ product.name }} - Skystore{% endblock %}
+
+{% block content %}
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            
+            <!-- Основная карточка товара -->
+            <div class="col-lg-10">
+                <div class="card shadow-sm border-0 overflow-hidden">
+                    
+                    <!-- Изображение товара (большое) -->
+                    <div class="text-center bg-light py-4">
+                        {% if product.photo %}
+                            <img src="{{ product.photo.url }}" 
+                                 class="img-fluid rounded" 
+                                 alt="{{ product.name }}"
+                                 style="max-height: 500px; object-fit: contain;">
+                        {% else %}
+                            <div class="no-photo" style="height: 400px; font-size: 1.2rem;">
+                                Нет фотографии
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body p-5">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
+                                
+                                {% if product.category %}
+                                    <p class="text-primary fs-5 mb-4">
+                                        <strong>Категория:</strong> {{ product.category.name }}
+                                    </p>
+                                {% endif %}
+
+                                <div class="mb-4">
+                                    <h4 class="text-success fw-bold display-6">
+                                        {{ product.price|floatformat:2 }} ₽
+                                    </h4>
+                                </div>
+
+                                <h5 class="mb-3">Описание товара</h5>
+                                <p class="lead text-muted" style="line-height: 1.7;">
+                                    {{ product.description|default:"Описание отсутствует" }}
+                                </p>
+                            </div>
+
+                            <!-- Блок с дополнительной информацией -->
+                            <div class="col-lg-4">
+                                <div class="bg-light p-4 rounded-3">
+                                    <h6 class="text-uppercase text-muted mb-3">Характеристики</h6>
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td class="text-muted">ID товара:</td>
+                                            <td><strong>#{{ product.pk }}</strong></td>
+                                        </tr>
+                                        {% if product.created_at %}
+                                        <tr>
+                                            <td class="text-muted">Добавлен:</td>
+                                            <td>{{ product.created_at|date:"d.m.Y" }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="card-footer bg-white border-0 p-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'catalog:products_catalog' %}" 
+                               class="btn btn-outline-secondary btn-lg px-5 me-md-2">
+                                ← Вернуться в каталог
+                            </a>
+                            <button class="btn btn-primary btn-lg px-5">
+                                Купить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Skystore - Каталог товаров{% endblock %}
+
+{% block content %}
+
+    <div class="main-header text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">Skystore</h1>
+            <p class="lead fs-4">Каталог товаров</p>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Все товары</h2>
+            <p class="lead text-muted">Полный ассортимент нашего магазина</p>
+        </div>
+
+        <div class="row g-4">
+            {% if products %}
+                {% for product in products %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card product-card h-100 shadow-sm border-0">
+
+                        {% if product.photo %}
+                            <img src="{{ product.photo.url }}"
+                                 class="card-img-top"
+                                 alt="{{ product.name }}"
+                                 loading="lazy">
+                        {% else %}
+                            <div class="no-photo">Нет фото</div>
+                        {% endif %}
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ product.name }}</h5>
+
+                            {% if product.category %}
+                                <p class="text-primary small mb-2">
+                                    <strong>Категория:</strong> {{ product.category.name }}
+                                </p>
+                            {% endif %}
+
+                            <p class="card-text text-muted flex-grow-1">
+                                {{ product.description|truncatechars:100|default:"Описание отсутствует" }}
+                            </p>
+
+                            <div class="mt-auto">
+                                <h4 class="text-success fw-bold mb-3">{{ product.price|floatformat:2 }} ₽</h4>
+
+                                <!-- ИСПРАВЛЕННАЯ ССЫЛКА -->
+                                <a href="{% url 'catalog:product_detail' product.pk %}"
+                                   class="btn btn-primary w-100">
+                                    Подробнее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        <h5>Пока нет товаров в каталоге</h5>
+                        <p class="mb-0">Добавьте товары через административную панель Django</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from .models import Product, Contact, CompanyContacts
 
@@ -39,7 +39,7 @@ def home(request):
         'contact_info': contact_info,  # передаём для блока реквизитов
     }
 
-    return render(request, 'home.html', context)
+    return render(request, 'catalog/home.html', context)
 
 
 def contacts(request):
@@ -63,4 +63,16 @@ def contacts(request):
         messages.success(request, 'Ваше сообщение успешно отправлено!')
         return redirect('catalog:contacts')
 
-    return render(request, 'contacts.html', {"company": company})
+    return render(request, 'catalog/contacts.html', {"company": company})
+
+def products_catalog(request):
+    """Страница со всеми товарами"""
+    products = Product.objects.all().order_by('-id')   # можно изменить сортировку
+    context = {
+        'products': products,
+    }
+    return render(request, 'catalog/products_catalog.html', context)
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)   # безопасный запрос
+    return render(request, 'catalog/product_detail.html', {'product': product})
