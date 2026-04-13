@@ -1,17 +1,24 @@
-from django.urls import path
-from catalog.apps import CatalogConfig
-from catalog.views import home
+
 from django.conf import settings
 from django.conf.urls.static import static
-from . import views
 
-app_name = CatalogConfig.name
+from django.urls import path
+from .views import (
+    HomePageView,
+    ProductsCatalogView,
+    ProductDetailView,
+    ProductCreateView,
+    ContactsView,
+)
+
+app_name = 'catalog'
+
 urlpatterns = [
-    path('', views.home, name='home'),  # главная
-    path('catalog/', views.products_catalog, name='products_catalog'),  # каталог товаров
-    path('contacts/', views.contacts, name='contacts'), # контакты
-    path('product/<int:pk>/', views.product_detail, name='product_detail'), # карточка товара
-    path('add_product/', views.add_product, name='add_product'), # Новый товар
+    path('', HomePageView.as_view(), name='home'),
+    path('catalog/', ProductsCatalogView.as_view(), name='products_catalog'),
+    path('product/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
+    path('add_product/', ProductCreateView.as_view(), name='add_product'),
+    path('contacts/', ContactsView.as_view(), name='contacts'),
 ]
 
 # ====================== MEDIA FILES (чтобы фото показывались) ======================
