@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from .models import Product, Contact, CompanyContacts
+from .forms import ProductForm
+from django.core.paginator import Paginator
 
 
 def home(request):
@@ -65,14 +67,37 @@ def contacts(request):
 
     return render(request, 'catalog/contacts.html', {"company": company})
 
+
 def products_catalog(request):
-    """Страница со всеми товарами"""
-    products = Product.objects.all().order_by('-id')   # можно изменить сортировку
+    """Страница каталога со всеми товарами + пагинация"""
+    all_products = Product.objects.all().order_by('-created_at')  # новые сверху
+
+    # Пагинация: по 8 товаров на странице
+    paginator = Paginator(all_products, 6)  # ← можно поменять на 6, 9, 12
+    page_number = request.GET.get('page')  # получаем номер страницы из URL
+    page_obj = paginator.get_page(page_number)  # безопасно получает текущую страницу
+
     context = {
-        'products': products,
+        'page_obj': page_obj,  # передаём объект страницы
+        'products': page_obj,  # для удобства в шаблоне
     }
     return render(request, 'catalog/products_catalog.html', context)
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)   # безопасный запрос
     return render(request, 'catalog/product_detail.html', {'product': product})
+
+
+def add_product(request):
+    """Форма добавления нового товара"""
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)  # request.FILES ОБЯЗАТЕЛЬНО для фото!
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, '✅ Товар успешно добавлен в каталог!')
+            return redirect('catalog:products_catalog')  # после добавления возвращаем в каталог
+    else:
+        form = ProductForm()
+
+    return render(request, 'catalog/add_product.html', {'form': form})

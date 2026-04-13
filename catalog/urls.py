@@ -11,6 +11,7 @@ urlpatterns = [
     path('catalog/', views.products_catalog, name='products_catalog'),  # каталог товаров
     path('contacts/', views.contacts, name='contacts'), # контакты
     path('product/<int:pk>/', views.product_detail, name='product_detail'), # карточка товара
+    path('add_product/', views.add_product, name='add_product'), # Новый товар
 ]
 
 # ====================== MEDIA FILES (чтобы фото показывались) ======================
