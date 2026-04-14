@@ -1,5 +1,5 @@
 from django.contrib import admin
-from catalog.models import Product, Category, Contact
+from catalog.models import Product, Category, Contact, CompanyContacts
 
 # Register your models here.
 # Register your models here.
@@ -21,3 +21,9 @@ class ContactAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('name', 'phone')
     readonly_fields = ('created_at',)
+
+
+@admin.register(CompanyContacts)
+class CompanyContactsAdmin(admin.ModelAdmin):
+    list_display = ("country", "tax_id", "address", "created_at", "updated_at")
+    ordering = ("-created_at",)

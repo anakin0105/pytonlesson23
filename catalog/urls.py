@@ -7,8 +7,10 @@ from . import views
 
 app_name = CatalogConfig.name
 urlpatterns = [
-    path("", home, name="home"),
-    path("contacts/", views.contacts, name="contacts"),
+    path('', views.home, name='home'),  # главная
+    path('catalog/', views.products_catalog, name='products_catalog'),  # каталог товаров
+    path('contacts/', views.contacts, name='contacts'), # контакты
+    path('product/<int:pk>/', views.product_detail, name='product_detail'), # карточка товара
 ]
 
 # ====================== MEDIA FILES (чтобы фото показывались) ======================
