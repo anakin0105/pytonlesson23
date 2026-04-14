@@ -1,0 +1,77 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ post.title }} - Skystore Блог{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+
+                <!-- Большое красивое превью -->
+                {% if post.preview %}
+                    <img src="{{ post.preview.url }}"
+                         class="img-fluid w-100"
+                         alt="{{ post.title }}"
+                         style="max-height: 500px; object-fit: cover;">
+                {% endif %}
+
+                <div class="card-body p-5">
+                    <h1 class="display-5 fw-bold mb-4">{{ post.title }}</h1>
+
+                    <!-- Метаданные -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <span class="text-muted">
+                            Опубликовано: {{ post.created_at|date:"d F Y" }}
+                        </span>
+                        <div class="d-flex gap-3">
+                            <span class="badge bg-primary fs-6">
+                                👁 {{ post.views }} просмотров
+                            </span>
+                            <span class="badge bg-success fs-6">
+                                👍 {{ post.likes }}
+                            </span>
+                            <span class="badge bg-danger fs-6">
+                                👎 {{ post.dislikes }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Контент статьи -->
+                    <div class="lead" style="line-height: 1.85; font-size: 1.08rem; color: #333;">
+                        {{ post.content|linebreaks }}
+                    </div>
+                </div>
+
+                <!-- Блок действий (лайки + кнопки) -->
+                <div class="card-footer bg-light border-0 p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                        <!-- Лайки и дизлайки -->
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'blog:like' post.pk %}"
+                               class="btn btn-outline-success btn-lg px-4">
+                                👍 Лайк ({{ post.likes }})
+                            </a>
+                            <a href="{% url 'blog:dislike' post.pk %}"
+                               class="btn btn-outline-danger btn-lg px-4">
+                                👎 Дизлайк ({{ post.dislikes }})
+                            </a>
+                        </div>
+
+                        <!-- Навигация -->
+                        <div>
+                            <a href="{% url 'blog:blog_list' %}"
+                               class="btn btn-outline-secondary btn-lg px-5">
+                                ← Все статьи
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
