@@ -1,0 +1,68 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Skystore - Блог{% endblock %}
+
+{% block content %}
+
+<div class="main-header text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">Наш Блог</h1>
+        <p class="lead fs-4 col-lg-8 mx-auto">
+            Полезные статьи, советы по разработке и новости Skystore
+        </p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Все статьи</h2>
+        <p class="lead text-muted">Читайте и развивайтесь вместе с нами</p>
+    </div>
+
+    <div class="row g-4">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 shadow-sm border-0 product-card overflow-hidden">
+
+                {% if post.preview %}
+                    <img src="{{ post.preview.url }}" 
+                         class="card-img-top" 
+                         alt="{{ post.title }}"
+                         style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="no-photo" style="height: 200px;">
+                        Нет превью
+                    </div>
+                {% endif %}
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    
+                    <p class="card-text text-muted flex-grow-1">
+                        {{ post.content|truncatechars:120|striptags }}
+                    </p>
+
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between small text-muted mb-3">
+                            <span>👁 {{ post.views }} просмотров</span>
+                            <span>{{ post.created_at|date:"d.m.Y" }}</span>
+                        </div>
+                        <a href="{% url 'blog:blog_detail' post.pk %}" 
+                           class="btn btn-primary w-100">Читать статью →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <h5>Пока нет опубликованных статей</h5>
+                <p>Добавьте статьи через административную панель</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

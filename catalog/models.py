@@ -89,8 +89,8 @@ class Contact(models.Model):
         return f"{self.name} ({self.phone})"
 
     class Meta:
-        verbose_name = "Контактное сообщение"
-        verbose_name_plural = "Контактные сообщения"
+        verbose_name = "Сообщение от пользователей"
+        verbose_name_plural = "Сообщения от пользователей"
 
 
 class CompanyContacts(models.Model):
