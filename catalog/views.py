@@ -6,7 +6,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView
-
+from io import BytesIO
+from PIL import Image
 from .models import Product, CompanyContacts, Contact
 from .forms import ProductForm
 
@@ -74,12 +75,17 @@ class ProductCreateView(CreateView):
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
-    template_name = 'catalog/product_form.html'      # ← изменили
+    template_name = 'catalog/product_form.html'
     success_url = reverse_lazy('catalog:my_products')
 
     def form_valid(self, form):
+        # Получаем правильное имя поля (смотри в своей ProductForm)
+        photo = self.request.FILES.get('photo')  # или 'image' — смотри форму
+        if photo:
+            photo.seek(0)  # просто сбрасываем указатель, без .read()
         messages.success(self.request, '✅ Товар успешно обновлён!')
         return super().form_valid(form)
+
 
 class MyProductsView(ListView):
     model = Product

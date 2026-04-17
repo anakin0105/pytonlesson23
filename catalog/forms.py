@@ -73,47 +73,49 @@ class ProductForm(forms.ModelForm):
             raise ValidationError('Цена товара не может быть отрицательной!')
         return price
 
-    # ====================== ВАЛИДАЦИЯ ИЗОБРАЖЕНИЯ (исправленная версия) ======================
     def clean_photo(self):
         photo = self.cleaned_data.get('photo')
 
-        if photo:
-            # Если это новый загруженный файл (при создании или замене фото)
-            if hasattr(photo, 'content_type'):  # UploadedFile
-                # Проверка размера
-                if photo.size > 5 * 1024 * 1024:
-                    raise ValidationError('Размер изображения не должен превышать 5 МБ.')
+        if not photo:
+            return photo
 
-                # Проверка формата по MIME-типу
-                if photo.content_type not in ['image/jpeg', 'image/png']:
-                    raise ValidationError('Разрешены только изображения в формате JPEG или PNG.')
+        if hasattr(photo, 'content_type') and hasattr(photo, 'size'):
+            # Проверка размера
+            if photo.size > 5 * 1024 * 1024:
+                raise ValidationError('Размер изображения не должен превышать 5 МБ.')
 
-            # Если это уже существующий файл (при редактировании без замены фото)
-            elif hasattr(photo, 'name'):  # ImageFieldFile
-                # Проверяем расширение файла
-                filename = photo.name.lower()
-                if not (filename.endswith('.jpg') or
-                        filename.endswith('.jpeg') or
-                        filename.endswith('.png')):
-                    raise ValidationError('Разрешены только изображения в формате JPEG или PNG.')
+            # Проверка MIME-типа
+            if photo.content_type not in ['image/jpeg', 'image/png']:
+                raise ValidationError('Разрешены только изображения в формате JPEG или PNG.')
 
-            # Дополнительная проверка через Pillow (для обоих случаев)
+            # Проверка через Pillow
             try:
-                # Для нового файла нужно открыть его как файл
-                if hasattr(photo, 'open'):
-                    with photo.open() as f:
-                        img = Image.open(f)
-                        img.verify()
-                else:
-                    # Для существующего файла
-                    img = Image.open(photo.path)
-                    img.verify()
-
+                photo.seek(0)  # сбрасываем указатель перед чтением
+                img = Image.open(photo)
+                img.verify()
                 if img.format not in ['JPEG', 'PNG']:
                     raise ValidationError('Файл должен быть в формате JPEG или PNG.')
+            except ValidationError:
+                raise
+            except Exception:
+                raise ValidationError('Файл повреждён или не является корректным изображением.')
+            finally:
+                photo.seek(0)  # сбрасываем после verify(), НО НЕ ЗАКРЫВАЕМ!
 
-            except Exception as e:
-                # Если файл повреждён или не является изображением
-                raise ValidationError('Загруженный файл повреждён или не является корректным изображением.')
+        else:
+            if hasattr(photo, 'name'):
+                filename = photo.name.lower()
+                if not filename.endswith(('.jpg', '.jpeg', '.png')):
+                    raise ValidationError('Разрешены только изображения в формате JPEG или PNG.')
+
+            try:
+                img = Image.open(photo.path)
+                img.verify()
+                if img.format not in ['JPEG', 'PNG']:
+                    raise ValidationError('Файл должен быть в формате JPEG или PNG.')
+            except ValidationError:
+                raise
+            except Exception:
+                raise ValidationError('Существующее изображение повреждено.')
 
         return photo
