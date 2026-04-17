@@ -1,0 +1,88 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}
+    {% if object %}Редактировать товар{% else %}Добавить новый товар{% endif %} - Skystore
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+
+                <!-- Заголовок карточки -->
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 text-center">
+                        {% if object %}
+                            Редактировать товар: {{ object.name }}
+                        {% else %}
+                            Добавить новый товар
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body p-5">
+
+                    <!-- Сообщения об успехе/ошибках -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'success' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            {{ form.name.label_tag }}
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.category.label_tag }}
+                            {{ form.category }}
+                            {{ form.category.errors }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.price.label_tag }}
+                            {{ form.price }}
+                            {{ form.price.errors }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {{ form.description.errors }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.photo.label_tag }}
+                            {{ form.photo }}
+                            {{ form.photo.errors }}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                            <a href="{% url 'catalog:my_products' %}"
+                               class="btn btn-outline-secondary btn-lg px-5 me-md-2">
+                                Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                {% if object %}
+                                    Сохранить изменения
+                                {% else %}
+                                    Добавить товар
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
