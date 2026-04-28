@@ -1,11 +1,13 @@
 from django.views.generic import (
-    ListView, DetailView, CreateView, TemplateView
+    ListView, DetailView, CreateView, TemplateView, DeleteView, UpdateView
 )
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
-
+from django.views.generic import ListView
+from io import BytesIO
+from PIL import Image
 from .models import Product, CompanyContacts, Contact
 from .forms import ProductForm
 
@@ -59,16 +61,54 @@ class ProductDetailView(DetailView):
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
 
-
 class ProductCreateView(CreateView):
     model = Product
     form_class = ProductForm
-    template_name = 'catalog/add_product.html'
-    success_url = reverse_lazy('catalog:products_catalog')
+    template_name = 'catalog/product_form.html'      # ← изменили
+    success_url = reverse_lazy('catalog:my_products')
 
     def form_valid(self, form):
-        messages.success(self.request, '✅ Товар успешно добавлен в каталог!')
+        messages.success(self.request, '✅ Товар успешно добавлен!')
         return super().form_valid(form)
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
+    success_url = reverse_lazy('catalog:my_products')
+
+    def form_valid(self, form):
+        # Получаем правильное имя поля (смотри в своей ProductForm)
+        photo = self.request.FILES.get('photo')  # или 'image' — смотри форму
+        if photo:
+            photo.seek(0)  # просто сбрасываем указатель, без .read()
+        messages.success(self.request, '✅ Товар успешно обновлён!')
+        return super().form_valid(form)
+
+
+class MyProductsView(ListView):
+    model = Product
+    template_name = 'catalog/my_products.html'
+    context_object_name = 'products'
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        # Пока показываем все товары (как в MyPostsView)
+        # Потом можно будет фильтровать по пользователю, если добавим авторизацию
+        return Product.objects.all()
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = reverse_lazy('catalog:my_products')
+
+    def form_valid(self, form):
+        messages.success(self.request, '✅ Товар успешно удалён!')
+        return super().form_valid(form)
+
+
 
 
 # ==================== КОНТАКТЫ ====================
