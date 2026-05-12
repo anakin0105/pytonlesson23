@@ -61,8 +61,31 @@ def email_verification(request, token):
 
     if not user.is_active:
         user.is_active = True
-        user.token = None  # Очищаем токен
+        user.token = None
         user.save()
+
+        try:
+            send_mail(
+                subject='Добро пожаловать в Skystore!',
+                message=f"""Здравствуйте, {user.get_full_name() or user.email}!
+
+Ваш email успешно подтверждён — вы теперь полноправный участник Skystore.
+
+Теперь вы можете:
+- Добавлять и редактировать товары
+- Писать статьи в блоге
+- Управлять своим профилем
+
+Приятного использования!
+
+С уважением,
+Команда Skystore""",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Ошибка отправки приветственного письма: {e}")
 
         messages.success(request, '✅ Email успешно подтверждён! Теперь вы можете войти в аккаунт.')
 

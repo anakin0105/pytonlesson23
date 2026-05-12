@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 
 # Create your views here.
@@ -22,6 +23,7 @@ class BlogListView(ListView):
 
 
 class BlogDetailView(DetailView):
+    login_url = 'users:login'
     model = BlogPost
     template_name = 'blog/blog_detail.html'
     context_object_name = 'post'
@@ -42,7 +44,8 @@ class BlogDetailView(DetailView):
 
         return self.object
 
-class BlogCreateView(CreateView):
+class BlogCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'users:login'
     model = BlogPost
     form_class = BlogPostForm  # вместо fields = [...]
     template_name = 'blog/blog_form.html'
@@ -59,7 +62,8 @@ class BlogCreateView(CreateView):
         return response
 
 
-class BlogUpdateView(UpdateView):
+class BlogUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'users:login'
     model = BlogPost
     form_class = BlogPostForm  # вместо fields = [...]
     template_name = 'blog/blog_form.html'
@@ -69,7 +73,8 @@ class BlogUpdateView(UpdateView):
         return reverse('blog:blog_detail', args=[self.object.pk])
 
 
-class BlogDeleteView(DeleteView):
+class BlogDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'users:login'
     model = BlogPost
     template_name = 'blog/blog_confirm_delete.html'
     success_url = reverse_lazy('blog:blog_list')
@@ -89,7 +94,8 @@ def dislike_post(request, pk):
     messages.success(request, 'Спасибо за отзыв! 👎')
     return redirect('blog:blog_detail', pk=pk)
 
-class MyPostsView(ListView):
+class MyPostsView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
     model = BlogPost
     template_name = 'blog/my_posts.html'
     context_object_name = 'posts'
