@@ -31,7 +31,7 @@ class BlogDetailView(DetailView):
         self.object.views += 1
         self.object.save(update_fields=['views'])
 
-        if self.object.views == 100:
+        if self.object.views == 5:
             print(f"🎉 Поздравляем! Статья '{self.object.title}' достигла 100 просмотров! На почту направлено сообщение")
             send_mail(
                 subject=f'🎉 Статья достигла 100 просмотров!',
