@@ -1,0 +1,28 @@
+<!-- Только боковая панель -->
+<div class="sidebar col-md-3 col-lg-2 p-0 flex-shrink-0">
+    <div class="p-4">
+        <h4 class="mb-5 fw-bold text-primary">Skystore</h4>
+
+        <h6 class="mt-4 mb-2 text-uppercase text-muted">Категории</h6>
+        <ul class="nav flex-column mb-4">
+            <li class="nav-item"><a class="nav-link" href="#">Рассылки</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Телеграм боты</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Полезные утилиты</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Веб-приложения</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Микросервисы</a></li>
+        </ul>
+
+        <h6 class="mt-4 mb-2 text-uppercase text-muted">Дополнительно</h6>
+        <ul class="nav flex-column mb-4">
+            <li class="nav-item"><a class="nav-link" href="{% url 'blog:blog_list' %}">Наш блог</a></li>
+        </ul>
+
+        <h6 class="mt-4 mb-2 text-uppercase text-muted">О нас</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+                   href="{% url 'catalog:contacts' %}">Контакты</a>
+            </li>
+        </ul>
+    </div>
+</div>

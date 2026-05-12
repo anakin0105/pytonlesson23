@@ -20,6 +20,7 @@ from django.urls import path, include
 from django.utils.translation.trans_real import catalog
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('',include('catalog.urls', namespace='catalog'))
+    path("admin/", admin.site.urls),
+    path("", include("catalog.urls", namespace="catalog")),
+    path('blog/', include('blog.urls', namespace="blog")),
 ]

@@ -1,11 +1,30 @@
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.urls import path
-from catalog.apps import CatalogConfig
-from catalog.views import home
-from . import views
+from .views import (
+    HomePageView,
+    ProductsCatalogView,
+    ProductDetailView,
+    ProductCreateView,
+    ContactsView,
+    MyProductsView,
+    ProductUpdateView,   # ← добавь
+    ProductDeleteView,   # ← добавь
+)
 
+app_name = 'catalog'
 
-app_name = CatalogConfig.name
 urlpatterns = [
-    path('', home, name='home'),
-    path('contacts/', views.contacts, name='contacts'),
+    path('', HomePageView.as_view(), name='home'),
+    path('catalog/', ProductsCatalogView.as_view(), name='products_catalog'),
+    path('product/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
+    path('add_product/', ProductCreateView.as_view(), name='add_product'),
+    path('my_products/', MyProductsView.as_view(), name='my_products'),
+    path('contacts/', ContactsView.as_view(), name='contacts'),
+    path('edit_product/<int:pk>/', ProductUpdateView.as_view(), name='edit_product'),   # ← добавь
+    path('delete_product/<int:pk>/', ProductDeleteView.as_view(), name='product_delete'),  # ← добавь
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
