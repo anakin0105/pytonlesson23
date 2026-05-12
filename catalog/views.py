@@ -10,7 +10,7 @@ from io import BytesIO
 from PIL import Image
 from .models import Product, CompanyContacts, Contact
 from .forms import ProductForm
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # ==================== ПРОДУКТЫ ====================
 
@@ -46,7 +46,7 @@ class HomePageView(TemplateView):
 class ProductsCatalogView(ListView):
     model = Product
     template_name = 'catalog/products_catalog.html'
-    context_object_name = 'page_obj'   # важно для пагинации
+    context_object_name = 'products'    # важно для пагинации
     paginate_by = 6
     ordering = ['-created_at']
 
@@ -61,7 +61,8 @@ class ProductDetailView(DetailView):
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'users:login'
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'      # ← изменили
@@ -72,7 +73,8 @@ class ProductCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'users:login'
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
@@ -87,7 +89,8 @@ class ProductUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class MyProductsView(ListView):
+class MyProductsView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
     model = Product
     template_name = 'catalog/my_products.html'
     context_object_name = 'products'
@@ -99,7 +102,8 @@ class MyProductsView(ListView):
         return Product.objects.all()
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = 'users:login'
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:my_products')

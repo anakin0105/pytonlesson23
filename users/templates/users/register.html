@@ -1,0 +1,46 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Регистрация в Skystore{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-4 text-center">
+                    <h4 class="mb-0 fw-bold">Создать аккаунт</h4>
+                </div>
+                <div class="card-body p-5">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                   <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Все поля формы -->
+                        {{ form.as_p }}   <!-- или твои ручные поля -->
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold py-3">
+                                Зарегистрироваться
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p>Уже есть аккаунт? 
+                            <a href="{% url 'users:login' %}" class="text-primary fw-medium">Войти</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
