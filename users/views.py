@@ -6,14 +6,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.conf import settings
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, UserProfileForm
 from .models import CustomUser
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .forms import UserRegisterForm
 from .models import CustomUser
-
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import (
+    ListView, DetailView, CreateView, TemplateView, DeleteView, UpdateView
+)
 class UserCreateView(CreateView):
     model = CustomUser
     form_class = UserRegisterForm
@@ -61,9 +63,42 @@ def email_verification(request, token):
 
     if not user.is_active:
         user.is_active = True
-        user.token = None  # Очищаем токен
+        user.token = None
         user.save()
+
+        try:
+            send_mail(
+                subject='Добро пожаловать в Skystore!',
+                message=f"""Здравствуйте, {user.get_full_name() or user.email}!
+
+Ваш email успешно подтверждён — вы теперь полноправный участник Skystore.
+
+Теперь вы можете:
+- Добавлять и редактировать товары
+- Писать статьи в блоге
+- Управлять своим профилем
+
+Приятного использования!
+
+С уважением,
+Команда Skystore""",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Ошибка отправки приветственного письма: {e}")
 
         messages.success(request, '✅ Email успешно подтверждён! Теперь вы можете войти в аккаунт.')
 
     return redirect(reverse('users:login'))
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = 'users:login'
+    model = CustomUser
+    form_class = UserProfileForm
+    template_name = 'users/profile.html'
+    success_url = reverse_lazy('users:profile')
+
+    def get_object(self):
+        return self.request.user
