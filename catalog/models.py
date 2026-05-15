@@ -1,7 +1,7 @@
 from symtable import Class
 
 from django.db import models
-
+from django.conf import settings
 # Create your models here.
 
 
@@ -67,6 +67,20 @@ class Product(models.Model):
         auto_now=True,
         verbose_name="Дата последнего изменения",
     )
+    # === НОВЫЕ ПОЛЯ ПО ЗАДАНИЮ ===
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликовано",
+        help_text="Виден ли товар всем пользователям в каталоге"
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Владелец",
+        related_name="products",
+        null=True,  # временно, чтобы старые товары не сломались
+        blank=True
+    )
 
     def __str__(self):
         return self.name
@@ -74,6 +88,9 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+        permissions = [
+            ("can_unpublish_product", "Может снимать с публикации продукт"),
+        ]
 
 class Contact(models.Model):
     name = models.CharField(max_length=100, verbose_name="Имя")

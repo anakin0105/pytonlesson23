@@ -69,6 +69,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('catalog:my_products')
 
     def form_valid(self, form):
+        form.instance.owner = self.request.user  # автоматически присваиваем владельца
         messages.success(self.request, '✅ Товар успешно добавлен!')
         return super().form_valid(form)
 
@@ -81,10 +82,6 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('catalog:my_products')
 
     def form_valid(self, form):
-        # Получаем правильное имя поля (смотри в своей ProductForm)
-        photo = self.request.FILES.get('photo')  # или 'image' — смотри форму
-        if photo:
-            photo.seek(0)  # просто сбрасываем указатель, без .read()
         messages.success(self.request, '✅ Товар успешно обновлён!')
         return super().form_valid(form)
 
