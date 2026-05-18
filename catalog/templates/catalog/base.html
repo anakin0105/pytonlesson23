@@ -65,9 +65,10 @@
     <!-- Правая часть страницы -->
     <div class="flex-grow-1">
 
-        <!-- Верхняя панель (topbar) — добавили сюда -->
+        <!-- Верхняя панель -->
         <header class="d-flex flex-wrap align-items-center justify-content-between py-3 px-4 border-bottom bg-white shadow-sm">
             <div></div>
+
             <div class="d-flex align-items-center gap-4">
                 <a href="{% url 'catalog:home' %}"
                    class="fs-5 fw-medium text-dark text-decoration-none">Главная</a>
@@ -77,14 +78,41 @@
                    class="fs-5 fw-medium text-dark text-decoration-none">Блог</a>
                 <a href="{% url 'catalog:contacts' %}"
                    class="fs-5 fw-medium text-dark text-decoration-none">Контакты</a>
-                <a href="{% url 'catalog:my_products' %}"
-                   class="fs-5 fw-medium text-dark text-decoration-none">Мои товары</a>
-                <a href="{% url 'blog:my_posts' %}"
-                   class="fs-5 fw-medium text-dark text-decoration-none">Мои статьи</a>
 
+                {% if request.user.is_authenticated %}
+                    <!-- Авторизованный пользователь -->
+                    <a href="{% url 'catalog:my_products' %}"
+                       class="fs-5 fw-medium text-dark text-decoration-none">Мои товары</a>
+                    <a href="{% url 'blog:my_posts' %}"
+                       class="fs-5 fw-medium text-dark text-decoration-none">Мои статьи</a>
+
+                    <div class="dropdown">
+                        <a href="#" class="fs-5 fw-medium text-dark text-decoration-none dropdown-toggle"
+                           data-bs-toggle="dropdown" role="button">
+                            {{ request.user.email|truncatechars:25 }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'users:profile' %}">👤 Личный кабинет</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'users:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">🚪 Выйти</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <!-- Неавторизованный пользователь -->
+                    <a href="{% url 'users:login' %}"
+                       class="fs-5 fw-medium text-dark text-decoration-none">Войти</a>
+                    <a href="{% url 'users:register' %}"
+                       class="btn btn-primary">Регистрация</a>
+                {% endif %}
             </div>
         </header>
-        <!-- ←←← СЮДА ВСТАВЛЯЕМ СООБЩЕНИЯ -->
+
+        <!-- Сообщения -->
         {% if messages %}
             <div class="container mt-3">
                 {% for message in messages %}
@@ -96,7 +124,7 @@
             </div>
         {% endif %}
 
-        <!-- Основной контент страницы -->
+        <!-- Основной контент -->
         {% block content %}{% endblock %}
 
     </div>

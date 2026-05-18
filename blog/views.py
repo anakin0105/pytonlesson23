@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render
 
 # Create your views here.
@@ -22,6 +23,7 @@ class BlogListView(ListView):
 
 
 class BlogDetailView(DetailView):
+    login_url = 'users:login'
     model = BlogPost
     template_name = 'blog/blog_detail.html'
     context_object_name = 'post'
@@ -31,7 +33,7 @@ class BlogDetailView(DetailView):
         self.object.views += 1
         self.object.save(update_fields=['views'])
 
-        if self.object.views == 5:
+        if self.object.views == 100:
             print(f"🎉 Поздравляем! Статья '{self.object.title}' достигла 100 просмотров! На почту направлено сообщение")
             send_mail(
                 subject=f'🎉 Статья достигла 100 просмотров!',
@@ -42,13 +44,15 @@ class BlogDetailView(DetailView):
 
         return self.object
 
-class BlogCreateView(CreateView):
+class BlogCreateView(LoginRequiredMixin, CreateView):
+    login_url = 'users:login'
     model = BlogPost
     form_class = BlogPostForm  # вместо fields = [...]
     template_name = 'blog/blog_form.html'
     success_url = reverse_lazy('blog:blog_list')
 
     def form_valid(self, form):
+        form.instance.owner = self.request.user  # ← добавляем владельца
         form.instance.is_published = False
         response = super().form_valid(form)
         messages.success(
@@ -59,20 +63,39 @@ class BlogCreateView(CreateView):
         return response
 
 
-class BlogUpdateView(UpdateView):
+class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    login_url = 'users:login'
     model = BlogPost
     form_class = BlogPostForm  # вместо fields = [...]
     template_name = 'blog/blog_form.html'
+
+    def test_func(self):
+        post = self.get_object()
+        user = self.request.user
+        return (
+                user == post.owner or
+                user.is_staff or
+                user.groups.filter(name='Контент-менеджер').exists()
+        )
 
     def get_success_url(self):
         messages.success(self.request, '✅ Статья успешно обновлена!')
         return reverse('blog:blog_detail', args=[self.object.pk])
 
 
-class BlogDeleteView(DeleteView):
+class BlogDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = BlogPost
     template_name = 'blog/blog_confirm_delete.html'
     success_url = reverse_lazy('blog:blog_list')
+
+    def test_func(self):
+        post = self.get_object()
+        user = self.request.user
+        return (
+            user == post.owner or
+            user.is_staff or
+            user.groups.filter(name='Контент-менеджер').exists()
+        )
 
 def like_post(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
@@ -89,7 +112,8 @@ def dislike_post(request, pk):
     messages.success(request, 'Спасибо за отзыв! 👎')
     return redirect('blog:blog_detail', pk=pk)
 
-class MyPostsView(ListView):
+class MyPostsView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
     model = BlogPost
     template_name = 'blog/my_posts.html'
     context_object_name = 'posts'

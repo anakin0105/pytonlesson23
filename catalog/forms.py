@@ -11,7 +11,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['name', 'category', 'description', 'price', 'photo']
+        fields = ['name', 'category', 'description', 'price', 'photo', 'is_published']
 
         labels = {
             'name': 'Название товара',
@@ -19,6 +19,7 @@ class ProductForm(forms.ModelForm):
             'description': 'Описание товара',
             'price': 'Цена (₽)',
             'photo': 'Фотография товара (JPEG или PNG, макс. 5 МБ)',
+            'is_published': 'Опубликовать товар',
         }
 
         widgets = {

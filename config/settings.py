@@ -57,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+   # "blog.middleware.BlogLoginRequiredMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -136,7 +137,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR / "media")
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False  # ← это важно! не должно быть True одновременно с TLS
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
@@ -146,3 +147,23 @@ NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL')
 AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = '/'
+
+# ==================== CACHE (Redis) ====================
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",   # можно вынести в .env
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "RETRY_ON_TIMEOUT": True,
+            "MAX_CONNECTIONS": 100,
+        },
+        "KEY_PREFIX": "skystore",  # важно для нескольких проектов
+    }
+}
+
+# Опционально: Redis как сессии (очень рекомендуется)
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

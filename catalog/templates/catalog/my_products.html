@@ -25,25 +25,38 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h5 class="card-title mb-2">{{ product.name }}</h5>
+
                             {% if product.category %}
                                 <p class="text-muted small mb-1">
                                     Категория: {{ product.category.name }}
                                 </p>
                             {% endif %}
+
                             <p class="text-muted small">
-                                Добавлен: {{ product.created_at|date:"d.m.Y H:i" }} | 
+                                Добавлен: {{ product.created_at|date:"d.m.Y H:i" }} |
                                 Цена: <strong>{{ product.price|floatformat:2 }} ₽</strong>
                             </p>
+
+                            <!-- Статус публикации -->
+                            {% if product.is_published %}
+                                <span class="badge bg-success">Опубликовано</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">На модерации</span>
+                            {% endif %}
                         </div>
 
                         <div class="col-md-4">
                             <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                                <a href="{% url 'catalog:product_detail' product.pk %}" 
+                                <a href="{% url 'catalog:product_detail' product.pk %}"
                                    class="btn btn-outline-primary btn-sm">Посмотреть</a>
-                               <a href="{% url 'catalog:edit_product' product.pk %}"
-                                class="btn btn-warning btn-sm">Редактировать</a>
-                                <a href="{% url 'catalog:product_delete' product.pk %}" 
-                                   class="btn btn-danger btn-sm">Удалить</a>
+
+                                <!-- Кнопки видны только владельцу или модератору -->
+                                {% if product.owner == request.user or perms.catalog.can_unpublish_product or request.user.is_staff %}
+                                    <a href="{% url 'catalog:edit_product' product.pk %}"
+                                       class="btn btn-warning btn-sm">Редактировать</a>
+                                    <a href="{% url 'catalog:product_delete' product.pk %}"
+                                       class="btn btn-danger btn-sm">Удалить</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 from django.db import models
 from django.urls import reverse
-
+from django.conf import settings
 
 class BlogPost(models.Model):
     title = models.CharField(
@@ -39,10 +39,23 @@ class BlogPost(models.Model):
         default=0,
         verbose_name="Количество дизлайков"
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Автор",
+        null=True,
+        blank=True,
+        related_name="blog_posts"
+    )
+
     class Meta:
         verbose_name = "Блоговая запись"
         verbose_name_plural = "Блоговые записи"
         ordering = ['-created_at']
+        permissions = [
+            ("can_publish_post", "Может публиковать статьи"),
+            ("can_unpublish_post", "Может снимать статьи с публикации"),
+        ]
 
     def __str__(self):
         return self.title
