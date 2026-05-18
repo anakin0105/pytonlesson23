@@ -66,6 +66,12 @@
                             {{ form.photo.errors }}
                         </div>
 
+                        <div class="mb-4">
+                            {{ form.is_published.label_tag }}
+                            {{ form.is_published }}
+                            {{ form.is_published.errors }}
+                        </div>
+
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
                             <a href="{% url 'catalog:my_products' %}"
                                class="btn btn-outline-secondary btn-lg px-5 me-md-2">
