@@ -147,3 +147,23 @@ NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL')
 AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = '/'
+
+# ==================== CACHE (Redis) ====================
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",   # можно вынести в .env
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "RETRY_ON_TIMEOUT": True,
+            "MAX_CONNECTIONS": 100,
+        },
+        "KEY_PREFIX": "skystore",  # важно для нескольких проектов
+    }
+}
+
+# Опционально: Redis как сессии (очень рекомендуется)
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

@@ -8,10 +8,11 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView
 from io import BytesIO
 from PIL import Image
-from .models import Product, CompanyContacts, Contact
+from .models import Product, CompanyContacts, Contact, Category
 from .forms import ProductForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 # ==================== ПРОДУКТЫ ====================
 
@@ -25,6 +26,7 @@ class HomePageView(TemplateView):
         context['latest_products'] = Product.objects.filter(
             is_published=True
         ).order_by('-created_at')[:5]
+        context['categories'] = Category.objects.all().order_by('name')
 
         # === Дополнительное задание: вывод в консоль ===
         print("\n" + "=" * 75)
@@ -52,15 +54,18 @@ class ProductsCatalogView(ListView):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        # Только опубликованные товары
         return Product.objects.filter(is_published=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['products'] = context['page_obj']
+        context['categories'] = Category.objects.all().order_by('name')
+
+        # Добавляем все категории
+        context['categories'] = Category.objects.all().order_by('name')
+
         return context
 
-
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
@@ -160,3 +165,28 @@ class ContactsView(TemplateView):
         Contact.objects.create(name=name, phone=phone, message=message)
         messages.success(request, 'Ваше сообщение успешно отправлено!')
         return HttpResponseRedirect(self.request.path)
+
+from django.views.generic import ListView
+from .services import get_products_by_category
+
+class CategoryProductsView(ListView):
+    """Список всех продуктов в указанной категории"""
+    model = Product
+    template_name = 'catalog/category_products.html'
+    context_object_name = 'products'
+    paginate_by = 12
+
+    def get_queryset(self):
+        category_id = self.kwargs.get('category_id')
+        return get_products_by_category(category_id)  # сервис с кешем
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all().order_by('name')
+        category_id = self.kwargs.get('category_id')
+        # Можно добавить название категории
+        try:
+            context['category'] = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            context['category'] = None
+        return context
